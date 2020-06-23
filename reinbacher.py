@@ -191,7 +191,10 @@ def reinbacher(dvs, **kwargs):
                                             lambdaaa, lambda_t, iterations, 
                                             iterations_t, u_min, u_max, 
                                             width, height, tau)
-        frames.append(output.copy()[:, :, 0].T)
+        # reshape and scale reconstructed frame, converting to 8 bit greyscale
+        outputFrame = output.copy()[:, :, 0].T
+        outputFrame = (outputFrame - u_min) / (u_max-u_min) * 255
+        frames.append(outputFrame.astype(np.uint8))
     
         frameTs.append(latestTs)
     framesDict = {'frames': frames,
