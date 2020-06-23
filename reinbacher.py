@@ -14,17 +14,6 @@ this program. If not, see <https://www.gnu.org/licenses/>."""
 
 import numpy as np
 
-def tex2D(array, x, y, width, height):
-    if x >= width:
-        x = width-1
-    if y >= height:
-        y = height-1
-    if x < 0:
-        x = 0
-    if y < 0:
-        y = 0        
-    return array[x, y, :]
-
 def TVL1_dual_kernel(p, tex_u, lambdaaa, sigma, width, height):
     gradX = np.diff(tex_u, n=1, axis=0, append=tex_u[np.newaxis, -1, :, :])
     gradY = np.diff(tex_u, n=1, axis=1, append=tex_u[:, np.newaxis, -1, :])
@@ -57,14 +46,6 @@ def Prepare_manifold_kernel(g_m, t_t, lambda_time, width, height):
     g_m[:, :, 1] = ty
     g_m[:, :, 2] = t_t[:, :, 0] # maybe we need it
     return g_m
-
-
-def getCoefficientsSingle(mc):
-    c = np.zeros((3), np.float64)
-    c[0] = (1.+mc[1]**2)/mc[3]
-    c[2] = (1.+mc[0]**2)/mc[3] # Yes order is swapped
-    c[1] = mc[0]*mc[1]/mc[3]
-    return c
 
 def getCoefficients(m):
     c = np.zeros((m.shape[0], m.shape[1], 3), np.float64)
@@ -112,26 +93,6 @@ def computeKTP(tex_m, tex_p):
              pXBack[:,:,2] * m_xm1y[:,:,0]/m_xm1y[:,:,3] + \
              pYBack[:,:,2] * m_xym1[:,:,0]/m_xym1[:,:,3])
     weight = tex_m[:,:,3]
-    return ktp, weight
-
-def computeKTPSingle(tex_m, tex_p, x, y, width, height):
-    p = tex2D(tex_p,x,y, width, height)
-    m_xy = tex2D(tex_m,x,y, width, height)
-    m_xm1y = tex2D(tex_m,x-1,y, width, height)
-    m_xym1 = tex2D(tex_m,x,y-1, width, height)
-    c_xy = getCoefficientsSingle(m_xy)
-    c_xm1y = getCoefficientsSingle(m_xm1y)
-    c_xym1 = getCoefficientsSingle(m_xym1)
-    ktp = (p[0] * (-c_xy[0] + c_xy[1]) + \
-             tex2D(tex_p,x-1,y, width, height)[0] * c_xm1y[0] - \
-             tex2D(tex_p,x,y-1, width, height)[0] * c_xym1[1]) + \
-            (p[1] * (-c_xy[2] + c_xy[1]) + \
-             tex2D(tex_p,x,y-1, width, height)[1] * c_xym1[2] - \
-             tex2D(tex_p,x-1,y, width, height)[1] * c_xm1y[1]) + \
-            (p[2] * (-m_xy[0]/m_xy[3] -m_xy[1]/m_xy[3]) + \
-             tex2D(tex_p,x-1,y, width, height)[2] * m_xm1y[0]/m_xm1y[3] + \
-             tex2D(tex_p,x,y-1, width, height)[2] * m_xym1[0]/m_xym1[3])
-    weight = m_xy[3]
     return ktp, weight
 
 def TVKLD_manifold_primal_kernel(g_u, g_u_, tex_p, g_f, tex_m, tau, u_min, u_max, width, height):
