@@ -134,7 +134,7 @@ def solveTVIncrementalManifold(u, f, t,
     return u
 
 def reinbacher(dvs, **kwargs):
-    stopTime = kwargs.get('stopTime', 1)
+    stopTime = kwargs.get('stopTime', dvs['ts'][-1])
     eventsPerImage = kwargs.get('eventsPerImage', 1000)
     lambdaaa = kwargs.get('lambda', 180.0) # 'lambda' is reserved word
     lambda_t = kwargs.get('lambda_t', 2.0)
@@ -148,7 +148,7 @@ def reinbacher(dvs, **kwargs):
     #method = 'TV_KLD' # options are: TV_L1;TV_L2; TV_LogL2; - only implemented the default
     # Dimensions come from the DVS container - they can be overridden with kwargs
     width = kwargs.get('width', dvs.get('dimX', 304))
-    height = kwargs.get('height', dvs.get('dimY', 260))
+    height = kwargs.get('height', dvs.get('dimY', 240))
     
     #containers for results
     frames = []
@@ -200,3 +200,5 @@ def reinbacher(dvs, **kwargs):
     framesDict = {'frames': frames,
              'ts': np.array(frameTs)}
     return framesDict
+
+
